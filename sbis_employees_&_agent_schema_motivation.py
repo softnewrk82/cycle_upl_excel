@@ -16,6 +16,7 @@ import numpy as np
 
 import datetime
 from dateutil.relativedelta import relativedelta
+import re
 
 import pendulum
 
@@ -64,7 +65,6 @@ from modules.api_info import var_encrypt_API_sbis_pass
 
 from modules.api_info import f_decrypt, load_key_external
 
-
 var_app_client_id = f_decrypt(var_encrypt_var_app_client_id, load_key_external()).decode("utf-8")
 var_app_secret = f_decrypt(var_encrypt_var_app_secret, load_key_external()).decode("utf-8")
 var_secret_key = f_decrypt(var_encrypt_var_secret_key, load_key_external()).decode("utf-8")
@@ -102,6 +102,7 @@ default_arguments = {
     'owner': 'evgenijgrinev',
 }
 
+path_da_server = '/mnt/da_server'
 
 with DAG(
     'upl_excel_daily',
@@ -115,8 +116,9 @@ with DAG(
 
     def def_sbis_employees():
         
-        sbis_empl = pd.read_excel('Z:/sbis_employees/Сотрудники.xlsx')
-        
+        # sbis_empl = pd.read_excel('Z:/sbis_employees/Сотрудники.xlsx')
+        sbis_empl = pd.read_excel(f'{path_da_server}/sbis_employees/Сотрудники.xlsx')
+
         @lru_cache
         def regex_filter(val):
             if val:
@@ -148,7 +150,9 @@ with DAG(
     
     def def_agent_award_schema():
     
-        df_scheme_common = pd.read_excel('Z:/agent_award/agent_award_schema/Схемы мотивации для Агентов.xlsx', header=1)
+        # df_scheme_common = pd.read_excel(f'Z:/agent_award/agent_award_schema/Схемы мотивации для Агентов.xlsx', header=1)
+        df_scheme_common = pd.read_excel(f'{path_da_server}/agent_award/agent_award_schema/Схемы мотивации для Агентов.xlsx', header=1)
+        
         df_scheme_common["Наименование"] = df_scheme_common["Наименование"].apply(lambda x: x.lower())
         df_scheme_common = df_scheme_common.rename(columns={
             "Наименование": "schema",
